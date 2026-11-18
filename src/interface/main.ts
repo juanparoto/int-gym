@@ -6,6 +6,7 @@ import mockMembers from "../data/members.json";
 const memberList = new MemberList();
 
 const inpName = document.getElementById("inp-name") as HTMLInputElement | null;
+const inpDiscount = document.getElementById("inp-discount") as HTMLInputElement | null;
 const inpDocument = document.getElementById(
   "inp-document",
 ) as HTMLInputElement | null;
@@ -72,32 +73,51 @@ function createFeeEditor(member: Member): HTMLDivElement {
   button.type = "button";
   button.className = "btn btn-outline-secondary";
   button.textContent = "Guardar cuota";
+
   button.addEventListener("click", () => {
-    // TODO: editar la cuota del socio con el valor de input
+    try {
+      memberList.updateFee(member.documentId, Number(input.value));
+      input.classList.remove("is-invalid");
+      updateList();
+      updateTotals();
+    } catch {
+      input.classList.add("is-invalid");
+    }
   });
+
   group.append(input, button);
   return group;
 }
 
 function createCard(member: Member): HTMLDivElement {
+  //Asi se pone un badge
+  const badge = document.createElement("span");
+  badge.textContent = `Plan: ${PLAN_LABELS[member.plan]}`;
+  const header = document.createElement("div");
+  header.className = "d-flex justify-content-between align-items-center mb-3";
+
+  const title = document.createElement("h5");
+  title.className = "card-title mb-0";
+  header.append(title, badge);
+  //
+
   const column = document.createElement("div");
   column.className = "col";
   const card = document.createElement("div");
   card.className = "card h-100";
   const body = document.createElement("div");
   body.className = "card-body";
-  const title = document.createElement("h5");
-  title.className = "card-title";
   title.textContent = member.name;
+
   const lines = [
     `Documento: ${member.documentId}`,
-    `Plan: ${PLAN_LABELS[member.plan]}`,
     `Cuota mensual: $${member.monthlyFee}`,
   ];
   if (member.discount > 0) {
     lines.push(`Descuento: ${member.discount}%`);
   }
-  body.append(title, ...lines.map(createText));
+
+  body.append(header, ...lines.map(createText));
   const footer = document.createElement("div");
   footer.className = "card-footer bg-transparent";
   footer.append(createFeeEditor(member));
@@ -134,7 +154,7 @@ loadMockData();
 updateList();
 updateTotals();
 
-if (btnAdd && inpName && inpDocument && selPlan && inpFee) {
+if (btnAdd && inpName && inpDocument && selPlan && inpFee && inpDiscount) {
   btnAdd.addEventListener("click", () => {
     try {
       const member = new Member({
@@ -142,6 +162,7 @@ if (btnAdd && inpName && inpDocument && selPlan && inpFee) {
         documentId: inpDocument.value,
         plan: selPlan.value as Plan,
         monthlyFee: Number(inpFee.value),
+        discount: Number(inpDiscount.value),
       });
       memberList.add(member);
       hideError();

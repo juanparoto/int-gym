@@ -11,6 +11,7 @@ describe("Member", () => {
       documentId: "12345678",
       plan: "full",
       monthlyFee: 1500,
+      discount: 20,
     });
   });
 
@@ -52,7 +53,27 @@ describe("Member", () => {
 
   test("show the member as text", () => {
     expect(member.toString()).toBe(
+      "Ana Pérez (doc. 12345678) - Plan Completo - $1500 - Descuento: 20%",
+    );
+  });
+
+  test("show the member as text without discount", () => {
+    member.discount = 0;
+    expect(member.toString()).toBe(
       "Ana Pérez (doc. 12345678) - Plan Completo - $1500",
     );
+  });
+
+  test("el getter anda", () => {
+    expect(member.discount).toBe(20);
+  });
+
+  test("el getter anda", () => {
+    member.discount = 30;
+    expect(member.discount).toBe(30);
+  });
+
+  test("el getter tira error", () => {
+    expect(()=> (member.discount = 150)).toThrow();
   });
 });
